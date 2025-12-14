@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"inventory-cli/dto"
 	"inventory-cli/model"
 	"os"
 
@@ -63,6 +64,27 @@ func PrintItemsTable(items []*model.ItemsModel) {
 	t.Render()
 }
 
+func PrintItemDetailTable(itm *model.ItemsModel) {
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.SetTitle("ITEM DETAIL")
+
+	t.AppendHeader(table.Row{"FIELD", "VALUE"})
+
+	t.AppendRows([]table.Row{
+		{"ID", itm.ID},
+		{"CATEGORY ID", itm.CategoryID},
+		{"NAME", itm.Name},
+		{"PRICE", fmt.Sprintf("%.0f", itm.Price)},
+		{"PURCHASE DATE", itm.PurchaseDate},
+		{"USAGE DAYS", itm.UsageDays},
+		{"CREATED AT", itm.CreatedAt},
+	})
+
+	t.SetStyle(table.StyleLight)
+	t.Render()
+}
+
 func PrintCategoryDetail(categories []*model.CategoryModel) {
 	fmt.Println("DETAIL KATEGORI:")
 
@@ -84,4 +106,53 @@ func PrintCategoryDetail(categories []*model.CategoryModel) {
 	table.Render()
 
 	fmt.Println("============================================================")
+}
+
+func PrintInvestmentSummaryTable(res *dto.InvestmentSummaryResponse) {
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.SetTitle("INVESTMENT SUMMARY")
+
+	t.AppendHeader(table.Row{
+		"TOTAL INITIAL VALUE",
+		"TOTAL CURRENT VALUE",
+		"TOTAL DEPRECIATION",
+	})
+
+	t.AppendRow(table.Row{
+		fmt.Sprintf("Rp %.0f", res.TotalInitialValue),
+		fmt.Sprintf("Rp %.0f", res.TotalCurrentValue),
+		fmt.Sprintf("Rp %.0f",
+			res.TotalInitialValue-res.TotalCurrentValue),
+	})
+
+	t.SetStyle(table.StyleLight)
+	t.Render()
+}
+
+func PrintInvestmentDetailTable(res *dto.InvestmentDetailResponse) {
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.SetTitle("INVESTMENT DETAIL")
+
+	t.AppendHeader(table.Row{
+		"ITEM ID",
+		"ITEM NAME",
+		"INITIAL VALUE",
+		"CURRENT VALUE",
+		"DEPRECIATION",
+		"YEARS USED",
+	})
+
+	t.AppendRow(table.Row{
+		res.ItemID,
+		res.ItemName,
+		fmt.Sprintf("Rp %.0f", res.InitialValue),
+		fmt.Sprintf("Rp %.0f", res.CurrentValue),
+		fmt.Sprintf("Rp %.0f", res.Depreciation),
+		res.YearsUsed,
+	})
+
+	t.SetStyle(table.StyleLight)
+	t.Render()
 }

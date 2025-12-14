@@ -21,3 +21,17 @@ type ItemResponse struct {
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
+
+type InvestmentSummaryResponse struct {
+	TotalInitialValue float64 `json:"total_initial_value"`
+	TotalCurrentValue float64 `json:"total_current_value"`
+}
+
+type InvestmentDetailResponse struct {
+	ItemID       int     `json:"item_id"`
+	ItemName     string  `json:"item_name"`
+	InitialValue float64 `json:"initial_value"`
+	CurrentValue float64 `json:"current_value"`
+	Depreciation float64 `json:"depreciation"`
+	YearsUsed    int     `json:"years_used"`
+}
