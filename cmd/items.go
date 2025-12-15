@@ -169,15 +169,32 @@ var updateItemCmd = &cobra.Command{
 	Short: "Update data barang",
 	Run: func(cmd *cobra.Command, args []string) {
 		id, _ := cmd.Flags().GetInt("id")
+		if id <= 0 {
+			fmt.Println("ID item harus diisi dengan benar")
+			return
+		}
+
 		name, _ := cmd.Flags().GetString("name")
 		price, _ := cmd.Flags().GetFloat64("price")
 		categoryID, _ := cmd.Flags().GetInt("category")
 		usage, _ := cmd.Flags().GetInt("usage")
-		date, _ := cmd.Flags().GetString("date")
+		dateStr, _ := cmd.Flags().GetString("date")
 
-		pd, _ := time.Parse("2006-01-02", date)
+		var pd time.Time
+		if dateStr != "" {
+			var err error
+			pd, err = time.Parse("2006-01-02", dateStr)
+			if err != nil {
+				fmt.Println("Format tanggal salah. Gunakan YYYY-MM-DD")
+				return
+			}
+		}
 
-		setup, _ := setupItemsHandler()
+		setup, err := setupItemsHandler()
+		if err != nil {
+			fmt.Println("Gagal setup handler:", err)
+			return
+		}
 		defer setup.Close()
 
 		setup.Handler.UpdateItem(&model.ItemsModel{

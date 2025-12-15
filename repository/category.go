@@ -96,7 +96,7 @@ func (repo *categoryRepository) FindById(id int) (*model.CategoryModel, error) {
 		FROM categories
 		WHERE id = $1;
 	`
-
+	
 	var ctg model.CategoryModel
 
 	err := repo.DB.QueryRow(context.Background(), query, id).

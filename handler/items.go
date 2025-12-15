@@ -97,12 +97,40 @@ func (h *ItemsHandler) SearchItems(keyword string) {
 }
 
 func (h *ItemsHandler) UpdateItem(itm *model.ItemsModel) {
-	err := h.ItemsSvc.UpdateItem(itm)
+	existing, err := h.ItemsSvc.GetItemByID(itm.ID)
 	if err != nil {
-		fmt.Println("Failed updated item", err)
+		fmt.Println("Error getting item:", err)
 		return
 	}
-	fmt.Println("Item updated succesfully")
+	if existing == nil {
+		fmt.Println("Item not found")
+		return
+	}
+
+	if itm.Name != "" {
+		existing.Name = itm.Name
+	}
+	if itm.Price > 0 {
+		existing.Price = itm.Price
+	}
+	if itm.CategoryID > 0 {
+		existing.CategoryID = itm.CategoryID
+	}
+	if !itm.PurchaseDate.IsZero() {
+		existing.PurchaseDate = itm.PurchaseDate
+	}
+	if itm.UsageDays > 0 {
+		existing.UsageDays = itm.UsageDays
+	}
+
+	// Panggil service update
+	err = h.ItemsSvc.UpdateItem(existing)
+	if err != nil {
+		fmt.Println("Failed to update item:", err)
+		return
+	}
+
+	fmt.Println("Item updated successfully")
 }
 
 func (h *ItemsHandler) ItemsNeedReplacement() {
