@@ -153,12 +153,12 @@ func (repo *categoryRepository) Delete(id int) error {
 		WHERE id = $1;
 	`
 
-	cmdTag, err := repo.DB.Exec(context.Background(), query, id)
+	rows, err := repo.DB.Exec(context.Background(), query, id)
 	if err != nil {
 		return fmt.Errorf("repository: delete category failed: %w", err)
 	}
 
-	if cmdTag.RowsAffected() == 0 {
+	if rows.RowsAffected() == 0 {
 		return fmt.Errorf("repository: category id %d not found", id)
 	}
 

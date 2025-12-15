@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"inventory-cli/dto"
 	"inventory-cli/model"
 	"inventory-cli/service"
 	"inventory-cli/utils"
@@ -32,8 +33,27 @@ func (h *ItemsHandler) ListsItems() {
 	utils.PrintItemsTable(items)
 }
 
-func (h *ItemsHandler) CreateItem() {
+func (h *ItemsHandler) CreateItem(req *dto.CreateItemRequest) {
+	if req.Name == "" || req.CategoryID == 0 || req.Price <= 0 {
+		fmt.Println("Input tidak valid")
+		return
+	}
 
+	itm := &model.ItemsModel{
+		CategoryID:   req.CategoryID,
+		Name:         req.Name,
+		Price:        req.Price,
+		PurchaseDate: req.PurchaseDate,
+		UsageDays:    req.UsageDays,
+	}
+
+	err := h.ItemsSvc.CreateItems(itm)
+	if err != nil {
+		fmt.Println("Failed create item:", err)
+		return
+	}
+
+	fmt.Println("Item created succesfully", itm.ID)
 }
 
 func (h *ItemsHandler) DetailItem(id int) {
@@ -49,6 +69,16 @@ func (h *ItemsHandler) DetailItem(id int) {
 	}
 
 	utils.PrintItemDetailTable(itm)
+}
+
+func (h *ItemsHandler) DeleteItem(id int) error {
+	if err := h.ItemsSvc.DeleteItem(id); err != nil {
+		fmt.Println("Failed to delete item:", err)
+		return err
+	}
+
+	fmt.Printf("Item with id %d deleted succesfully.\n", id)
+	return nil
 }
 
 func (h *ItemsHandler) SearchItems(keyword string) {
@@ -69,21 +99,21 @@ func (h *ItemsHandler) SearchItems(keyword string) {
 func (h *ItemsHandler) UpdateItem(itm *model.ItemsModel) {
 	err := h.ItemsSvc.UpdateItem(itm)
 	if err != nil {
-		fmt.Println("Gagal update item:", err)
+		fmt.Println("Failed updated item", err)
 		return
 	}
-	fmt.Println("Item berhasil diperbarui")
+	fmt.Println("Item updated succesfully")
 }
 
 func (h *ItemsHandler) ItemsNeedReplacement() {
 	items, err := h.ItemsSvc.GetItemsNeedReplacement()
 	if err != nil {
-		fmt.Println("Gagal mengambil data:", err)
+		fmt.Println("Error getting data:", err)
 		return
 	}
 
 	if len(items) == 0 {
-		fmt.Println("Tidak ada barang yang perlu diganti")
+		fmt.Println("There are no items that need to be replaced")
 		return
 	}
 
@@ -93,7 +123,7 @@ func (h *ItemsHandler) ItemsNeedReplacement() {
 func (h *ItemsHandler) InvestmentSummary() {
 	res, err := h.ItemsSvc.GetInvestmentSummary()
 	if err != nil {
-		fmt.Println("Gagal menghitung investasi:", err)
+		fmt.Println("Failed to calculate investment:", err)
 		return
 	}
 

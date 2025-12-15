@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"inventory-cli/database"
+	"inventory-cli/dto"
 	"inventory-cli/handler"
 	"inventory-cli/model"
 	"inventory-cli/repository"
@@ -60,6 +61,40 @@ var listItems = &cobra.Command{
 	},
 }
 
+var addItemCmd = &cobra.Command{
+	Use:   "add-item",
+	Short: "Tambahkan item/barang baru",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		name, _ := cmd.Flags().GetString("name")
+		categoryID, _ := cmd.Flags().GetInt("category")
+		price, _ := cmd.Flags().GetFloat64("price")
+		dateStr, _ := cmd.Flags().GetString("date")
+		usage, _ := cmd.Flags().GetInt("usage")
+
+		// 2006-01-02 itu pattern time
+		purchaseDate, err := time.Parse("2006-01-02", dateStr)
+		if err != nil {
+			fmt.Println("Incorrect date format. Use YYYY-MM-DD")
+			return
+		}
+
+		setup, err := setupItemsHandler()
+		if err != nil {
+			return
+		}
+		defer setup.Close()
+
+		setup.Handler.CreateItem(&dto.CreateItemRequest{
+			Name:         name,
+			CategoryID:   categoryID,
+			Price:        price,
+			PurchaseDate: purchaseDate,
+			UsageDays:    usage,
+		})
+	},
+}
+
 var detailItemyCmd = &cobra.Command{
 	Use:   "detail-item",
 	Short: "Melihat detail item berdasarkan ID",
@@ -80,6 +115,29 @@ var detailItemyCmd = &cobra.Command{
 		defer setup.Close()
 
 		setup.Handler.DetailItem(id)
+	},
+}
+
+var deleteItemCmd = &cobra.Command{
+	Use:   "delete-item",
+	Short: "Hapus item berdasarkan ID",
+	Long:  "Menghapus data item dari database berdasarkan ID yang diberikan",
+	Run: func(cmd *cobra.Command, args []string) {
+		id, _ := cmd.Flags().GetInt("id")
+
+		if id == 0 {
+			utils.PrintError("Id item harus di isi")
+			fmt.Println("\nContoh: delete-item --id=1")
+			return
+		}
+
+		setup, err := setupItemsHandler()
+		if err != nil {
+			return
+		}
+		defer setup.Close()
+
+		setup.Handler.DeleteItem(id)
 	},
 }
 
@@ -189,7 +247,9 @@ var investmentDetailCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(listItems)
+	rootCmd.AddCommand(addItemCmd)
 	rootCmd.AddCommand(detailItemyCmd)
+	rootCmd.AddCommand(deleteItemCmd)
 	rootCmd.AddCommand(searchItemCmd)
 	rootCmd.AddCommand(updateItemCmd)
 	rootCmd.AddCommand(needReplacementCmd)
@@ -197,9 +257,27 @@ func init() {
 	rootCmd.AddCommand(investmentSummaryCmd)
 	rootCmd.AddCommand(investmentDetailCmd)
 
+	// add item
+	addItemCmd.Flags().IntP("category", "c", 0, "Category ID (required)")
+	addItemCmd.Flags().StringP("name", "n", "", "Nama item (required)")
+	addItemCmd.Flags().Float64P("price", "p", 0, "Harga item")
+	addItemCmd.Flags().StringP("date", "d", "", "Tanggal beli (YYYY-MM-DD)")
+	addItemCmd.Flags().IntP("usage", "u", 0, "Jumlah hari pemakaian")
+
+	addItemCmd.MarkFlagRequired("category")
+	addItemCmd.MarkFlagRequired("name")
+	addItemCmd.MarkFlagRequired("price")
+	addItemCmd.MarkFlagRequired("date")
+
+	// detail
 	detailItemyCmd.Flags().IntP("id", "i", 0, "ID item (required)")
 	detailItemyCmd.MarkFlagRequired("id")
 
+	// delete
+	deleteItemCmd.Flags().IntP("id", "i", 0, "ID item (required)")
+	deleteItemCmd.MarkFlagRequired("id")
+
+	// search item/barang
 	searchItemCmd.Flags().StringP("name", "n", "", "Nama item yang dicari")
 
 	// update-item

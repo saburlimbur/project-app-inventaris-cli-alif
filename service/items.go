@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"inventory-cli/dto"
 	"inventory-cli/model"
 	"inventory-cli/repository"
@@ -12,6 +13,7 @@ type ItemsService interface {
 	CreateItems(itm *model.ItemsModel) error
 	Lists() ([]*model.ItemsModel, error)
 	GetItemByID(id int) (*model.ItemsModel, error)
+	DeleteItem(id int) error
 	SearchItems(keyword string) ([]*model.ItemsModel, error)
 	UpdateItem(itm *model.ItemsModel) error
 	GetItemsNeedReplacement() ([]*model.ItemsModel, error)
@@ -40,6 +42,27 @@ func (svc *itemsService) Lists() ([]*model.ItemsModel, error) {
 
 func (svc *itemsService) GetItemByID(id int) (*model.ItemsModel, error) {
 	return svc.Repo.FindById(id)
+}
+
+func (svc *itemsService) DeleteItem(id int) error {
+	if id <= 0 {
+		return utils.ErrInvalidItemID
+	}
+
+	exist, err := svc.Repo.FindById(id)
+	if err != nil {
+		return fmt.Errorf("service: failed to check item: %w", err)
+	}
+
+	if exist == nil {
+		return utils.ErrItemNotFound
+	}
+
+	if err := svc.Repo.Delete(id); err != nil {
+		return fmt.Errorf("service: failed to delete item: %w", err)
+	}
+
+	return nil
 }
 
 func (svc *itemsService) SearchItems(keyword string) ([]*model.ItemsModel, error) {

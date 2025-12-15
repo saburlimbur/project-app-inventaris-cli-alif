@@ -17,6 +17,9 @@ var (
 	ErrCategoryDescTooLong = errors.New("category description too long (max 500 characters)")
 	ErrInvalidCategoryID   = errors.New("invalid category id")
 
+	ErrInvalidItemID = errors.New("invalid category id")
+	ErrItemNotFound  = errors.New("item not found")
+
 	// PrintError = errors.New("invalid id")
 )
 

@@ -13,6 +13,7 @@ type ItemsRepository interface {
 	Create(itm *model.ItemsModel) error
 	FindAll() ([]*model.ItemsModel, error)
 	FindById(id int) (*model.ItemsModel, error)
+	Delete(id int) error
 	SearchByName(keyword string) ([]*model.ItemsModel, error)
 	Update(itm *model.ItemsModel) error
 	FindNeedReplacement() ([]*model.ItemsModel, error)
@@ -31,9 +32,9 @@ func NewItemsRepository(db *pgx.Conn) ItemsRepository {
 
 func (repo *itemsRepository) Create(itm *model.ItemsModel) error {
 	query := `
-		INSERT INTO items (category_id, name, price, purchase_date, usage_days)
-		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id, purchase_date, created_at, updated_at;
+	INSERT INTO items (category_id, name, price, purchase_date, usage_days)
+	VALUES ($1, $2, $3, $4, $5)
+	RETURNING id, created_at, updated_at;
 	`
 
 	err := repo.DB.QueryRow(
@@ -46,7 +47,6 @@ func (repo *itemsRepository) Create(itm *model.ItemsModel) error {
 		itm.UsageDays,
 	).Scan(
 		&itm.ID,
-		&itm.PurchaseDate,
 		&itm.CreatedAt,
 		&itm.UpdatedAt,
 	)
@@ -250,4 +250,23 @@ func (repo *itemsRepository) FindNeedReplacement() ([]*model.ItemsModel, error) 
 	}
 
 	return items, nil
+}
+
+func (repo *itemsRepository) Delete(id int) error {
+	query := `
+	DELETE FROM items
+	WHERE id = $1;
+	`
+
+	rows, err := repo.DB.Exec(context.Background(), query, id)
+
+	if err != nil {
+		return fmt.Errorf("repository: delete item failed: %w", err)
+	}
+
+	if rows.RowsAffected() == 0 {
+		return fmt.Errorf("repository: item id %d not found", id)
+	}
+
+	return nil
 }
