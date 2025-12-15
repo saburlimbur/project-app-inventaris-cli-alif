@@ -324,3 +324,9 @@ Persentase Penyusutan: 19.0%
 - **Persentase Penyusutan**: Persentase nilai yang sudah hilang dari harga awal
 
 ---
+
+## Link Demo dan Penjelasan Program
+
+---
+
+- [Demo dan Penjelasan Program](https://drive.google.com/file/d/1Li3kgZjVfE4doOPGgr9oOSRQvLGAz1Y1/view?usp=sharing)
