@@ -59,13 +59,7 @@ func (h *CategoryHandler) DetailCategory(id int) {
 		return
 	}
 
-	fmt.Println("===== DETAIL CATEGORY =====")
-	fmt.Println("ID:", ctg.ID)
-	fmt.Println("Name:", ctg.Name)
-	fmt.Println("Description:", ctg.Description)
-	fmt.Println("Created At:", ctg.CreatedAt.String())
-	fmt.Println("Updated At:", ctg.UpdatedAt.String())
-	fmt.Println("===========================")
+	utils.PrintCategoryDetailTable(ctg)
 }
 
 func (h *CategoryHandler) UpdateCategory(id int, name, desc string) error {

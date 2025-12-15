@@ -77,6 +77,7 @@ func (svc *itemsService) GetItemsNeedReplacement() ([]*model.ItemsModel, error) 
 	return svc.Repo.FindNeedReplacement()
 }
 
+// report invest
 func (svc *itemsService) GetInvestmentSummary() (*dto.InvestmentSummaryResponse, error) {
 	items, err := svc.Repo.FindAll()
 	if err != nil {
@@ -101,6 +102,7 @@ func (svc *itemsService) GetInvestmentSummary() (*dto.InvestmentSummaryResponse,
 	}, nil
 }
 
+// report invest
 func (svc *itemsService) GetInvestmentDetail(id int) (*dto.InvestmentDetailResponse, error) {
 	itm, err := svc.Repo.FindById(id)
 	if err != nil {

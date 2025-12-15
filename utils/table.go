@@ -20,7 +20,6 @@ func PrintCategoryTable(categories []*model.CategoryModel) {
 	t.SetOutputMirror(os.Stdout)
 	t.SetTitle("CATEGORY LIST")
 
-	// Header tanpa ANSI
 	t.AppendHeader(table.Row{"ID", "NAME", "DESCRIPTION", "CREATED AT"})
 
 	for _, c := range categories {
@@ -31,6 +30,25 @@ func PrintCategoryTable(categories []*model.CategoryModel) {
 			c.CreatedAt,
 		})
 	}
+
+	t.SetStyle(table.StyleLight)
+	t.Render()
+}
+
+func PrintCategoryDetailTable(c *model.CategoryModel) {
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.SetTitle("CATEGORY DETAIL")
+
+	t.AppendHeader(table.Row{"ID", "NAME", "DESCRIPTION", "CREATED AT", "UPDATED AT"})
+
+	t.AppendRow(table.Row{
+		c.ID,
+		c.Name,
+		c.Description,
+		c.CreatedAt,
+		c.UpdatedAt,
+	})
 
 	t.SetStyle(table.StyleLight)
 	t.Render()
@@ -69,16 +87,24 @@ func PrintItemDetailTable(itm *model.ItemsModel) {
 	t.SetOutputMirror(os.Stdout)
 	t.SetTitle("ITEM DETAIL")
 
-	t.AppendHeader(table.Row{"FIELD", "VALUE"})
+	t.AppendHeader(table.Row{
+		"ID",
+		"CATEGORY ID",
+		"NAME",
+		"PRICE",
+		"PURCHASE DATE",
+		"USAGE DAYS",
+		"CREATED AT",
+	})
 
-	t.AppendRows([]table.Row{
-		{"ID", itm.ID},
-		{"CATEGORY ID", itm.CategoryID},
-		{"NAME", itm.Name},
-		{"PRICE", fmt.Sprintf("%.0f", itm.Price)},
-		{"PURCHASE DATE", itm.PurchaseDate},
-		{"USAGE DAYS", itm.UsageDays},
-		{"CREATED AT", itm.CreatedAt},
+	t.AppendRow(table.Row{
+		itm.ID,
+		itm.CategoryID,
+		itm.Name,
+		fmt.Sprintf("%.0f", itm.Price),
+		itm.PurchaseDate.Format("2006-01-02"),
+		itm.UsageDays,
+		itm.CreatedAt.Format("2006-01-02 15:04:05"),
 	})
 
 	t.SetStyle(table.StyleLight)
